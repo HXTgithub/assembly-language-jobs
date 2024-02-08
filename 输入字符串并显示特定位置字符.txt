@@ -1,0 +1,113 @@
+data segment
+    s1 db "Please input a string(length<9):$"
+	s2 db "Please input the index of the char to display:$"
+    s3 db "The char is:$"
+    s4 db "The index is invalid!$"
+    s5 db "Please input a char:$"
+    s6 db "The count is : $"
+    s7 db "The string is too long!$"
+	str1 db 20,?,20 dup('$')   ;第一个字节存20，第二个未知，剩余连续20个字节存‘$’
+	x db ?
+data ends
+code segment
+    assume cs:code,ds:data
+start:  mov ax,data
+        mov ds,ax
+	    
+	t1:	lea dx,s1
+	    mov ah,09h
+		int 21h
+		
+		lea dx,str1
+		mov ah,0ah
+		int 21h
+		
+		mov dl,10
+		mov ah,02h
+		int 21h
+		mov dl,13
+		mov ah,02h
+		int 21h
+		
+		cmp str1+1,8
+
+		
+	t2:lea dx, s2
+	    mov ah, 09h
+		int 21h
+		
+		mov ah, 01h
+		int 21h
+		sub al, 30h
+		mov cl, al
+		
+		mov dl, 10
+		mov ah, 02h
+		int 21h
+		mov dl, 13
+		mov ah, 02h
+		int 21h
+		
+		mov bl, str1+1
+		dec bl
+		cmp cl, bl
+	    ja error2  ; 使用 jbe 而不是 ja，它的目标距离更远
+
+	    mov bl, cl
+		mov bh, 0
+		mov al, str1[bx+2]
+		
+        lea dx, s3
+ 		mov ah, 09h
+  		int 21h
+
+		mov dl, al
+		mov ah, 02h
+		int 21h
+		
+        lea dx, s5
+ 		mov ah, 09h
+  		int 21h
+		mov ah, 01h
+		int 21h
+		
+		xor cx, cx
+		mov cl, str1[1]
+		mov bx, -1
+		mov dl, 0
+		
+	t3: inc bx
+	    cmp al, str1[bx+2]
+		jnz t4    ; 不为零时跳转
+		inc dl
+		
+	t4: loop t3
+	
+	    add dl, 30h
+		mov cl, dl
+		
+		mov dl, 0ah
+		mov ah, 2
+		int 21h
+		mov dl, 0dh
+		mov ah, 2
+		int 21h
+		
+        lea dx, s6
+ 		mov ah, 09h
+  		int 21h
+
+		mov dl, cl
+		mov ah, 2
+		int 21h
+		
+		mov ax, 4c00h
+	    int 21h
+
+error2: lea dx, s4
+        mov ah, 09h
+        int 21h
+        jmp t2
+
+code ends
+end start
